@@ -5,10 +5,12 @@ import android.content.Intent
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.android.volley.Response
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.timuc.quicktyper.Utilities.BOARDCAST_GAME_START
 import com.example.timuc.quicktyper.Utilities.FIND_WORD_URL
+import org.json.JSONArray
 import org.json.JSONException
 import java.util.*
 
@@ -24,15 +26,12 @@ object GameService {
         var randomWord = getRandomChar() + "???"
         println(randomWord)
 
-        val randomWordRequest = object : JsonObjectRequest(Method.GET, "$FIND_WORD_URL$randomWord", null, Response.Listener {response ->
+        val randomWordRequest = object : JsonArrayRequest(Method.GET, "$FIND_WORD_URL$randomWord", null, Response.Listener<JSONArray> {response ->
             try {
 
-                var tmp = response.getString("word")
-                println(tmp)
+                var tmpJson = response.getJSONObject(Random().nextInt(response.length()))
+                var tmp = tmpJson.getString("word")
                 word = tmp.replaceRange(1, tmp.length, "...")
-                println(word)
-
-                LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(BOARDCAST_GAME_START))
                 complete(true)
 
             }catch (e : JSONException){
